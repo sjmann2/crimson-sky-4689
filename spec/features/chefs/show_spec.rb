@@ -56,5 +56,32 @@ RSpec.describe 'the chef show page' do
       expect(page).to have_content(meatballs.name)
       expect(page).to have_content(marinara.name)
     end
+
+    it "the three most popular ingredients the chef uses are listed" do
+      chef = Chef.create!(name: 'Chef Boyardee')
+      dish_1 = Dish.create!(name: 'Ravioli', description: 'Cheese filled pasta', chef_id: chef.id)
+      dish_2 = Dish.create!(name: 'Spaghettios', description: 'Round noodles with sauce', chef_id: chef.id)
+      cheese = Ingredient.create!(name: 'Cheese', calories: 120)
+      pasta = Ingredient.create!(name: 'Pasta shells', calories: 150)
+      meatballs = Ingredient.create!(name: 'Meatballs', calories: 200)
+      marinara = Ingredient.create!(name: 'Marinara', calories: 200)
+
+      DishIngredient.create!(dish_id: dish_1.id, ingredient_id: cheese.id)
+      DishIngredient.create!(dish_id: dish_1.id, ingredient_id: pasta.id)
+      DishIngredient.create!(dish_id: dish_1.id, ingredient_id: marinara.id)
+
+      DishIngredient.create!(dish_id: dish_2.id, ingredient_id: pasta.id)
+      DishIngredient.create!(dish_id: dish_2.id, ingredient_id: meatballs.id)
+      DishIngredient.create!(dish_id: dish_2.id, ingredient_id: marinara.id)
+      DishIngredient.create!(dish_id: dish_2.id, ingredient_id: cheese.id)
+
+      visit chef_path(chef)
+      
+      expect(page).to have_content("Three most popular ingredients for #{chef.name}")
+      expect(page).to have_content("Cheese")
+      expect(page).to have_content("Pasta shells")
+      expect(page).to have_content("Marinara")
+      expect(page).to_not have_content("Meatballs")
+    end
   end
 end
